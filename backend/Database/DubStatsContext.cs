@@ -17,11 +17,47 @@ namespace Backend.Database
             ? "/etc/dubstats/db"
             : "./db.sqlite";
 
-        public DbSet<CacheEntry> CacheEntries { get; set; }
+        public DbSet<CacheEntry>                CacheEntries    { get; set; }
+        public DbSet<Week>                      Weeks           { get; set; }
+        public DbSet<Package>                   Packages        { get; set; }
+        public DbSet<PackageWeekInfo>           WeekInfos       { get; set; }
+        public DbSet<PackageStats>              PackageStats    { get; set; }
+        public DbSet<ScheduledPackageUpdate>    PackageUpdates  { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder
+                .Entity<PackageWeekInfo>()
+                .HasIndex(nameof(PackageWeekInfo.PackageId), nameof(PackageWeekInfo.WeekId))
+                .IsUnique();
+
+            modelBuilder
+                .Entity<Week>()
+                .HasIndex(w => w.WeekStart)
+                .IsUnique();
+            modelBuilder
+                .Entity<Week>()
+                .HasIndex(w => w.WeekEnd)
+                .IsUnique();
+
+            modelBuilder
+                .Entity<Package>()
+                .HasIndex(p => p.Name)
+                .IsUnique();
+
+            modelBuilder
+                .Entity<ScheduledPackageUpdate>()
+                .HasIndex(
+                    nameof(ScheduledPackageUpdate.PackageId), nameof(ScheduledPackageUpdate.WeekId),
+                    nameof(ScheduledPackageUpdate.Milestone)
+                )
+                .IsUnique();
+            modelBuilder
+                .Entity<ScheduledPackageUpdate>()
+                .Property(u => u.Milestone)
+                .HasConversion<string>();
         }
 
         public async Task<CacheEntry> GetPackageCacheAsync()

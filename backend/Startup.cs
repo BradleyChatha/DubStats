@@ -21,15 +21,19 @@ namespace Backend
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DubStatsContext>();
-            services.AddScoped<IStatFetcher, DubRegistryStatFetcher>();
+            services.AddScoped<IPackageManager, DubRegistryStatFetcher>();
+            services.AddScoped<IWeekManager, WeekManager>();
+            services.AddScoped<IUpdateManager, UpdateManager>();
             services.AddMvc()
                     .AddRazorRuntimeCompilation();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DubStatsContext db)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DubStatsContext db, IPackageManager p)
         {
             db.Database.Migrate();
+
+            var package = p.GetPackageByNameOrNullAsync("jcli").Result;
 
             if (env.IsDevelopment())
             {

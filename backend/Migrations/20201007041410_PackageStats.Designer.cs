@@ -3,14 +3,16 @@ using System;
 using Backend.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Backend.Migrations
 {
     [DbContext(typeof(DubStatsContext))]
-    partial class DubStatsContextModelSnapshot : ModelSnapshot
+    [Migration("20201007041410_PackageStats")]
+    partial class PackageStats
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -129,32 +131,6 @@ namespace Backend.Migrations
                     b.ToTable("WeekInfos");
                 });
 
-            modelBuilder.Entity("Backend.Database.ScheduledPackageUpdate", b =>
-                {
-                    b.Property<int>("ScheduledPackageUpdateId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Milestone")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("PackageId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("WeekId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("ScheduledPackageUpdateId");
-
-                    b.HasIndex("WeekId");
-
-                    b.HasIndex("PackageId", "WeekId", "Milestone")
-                        .IsUnique();
-
-                    b.ToTable("PackageUpdates");
-                });
-
             modelBuilder.Entity("Backend.Database.Week", b =>
                 {
                     b.Property<int>("WeekId")
@@ -200,21 +176,6 @@ namespace Backend.Migrations
 
                     b.HasOne("Backend.Database.Week", "Week")
                         .WithMany("WeekInfos")
-                        .HasForeignKey("WeekId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Backend.Database.ScheduledPackageUpdate", b =>
-                {
-                    b.HasOne("Backend.Database.Package", "Package")
-                        .WithMany()
-                        .HasForeignKey("PackageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Backend.Database.Week", "Week")
-                        .WithMany()
                         .HasForeignKey("WeekId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
