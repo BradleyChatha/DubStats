@@ -1,4 +1,5 @@
 ﻿using Backend.Database;
+using Backend.Misc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,9 @@ namespace Backend.Services
 {
     public interface IWeekManager
     {
+        Task<Week> GetWeekByDayAsync(DateTime day);
         Task<Week> GetCurrentWeekAsync();
+        Task<IQueryable<Week>> GetWeekRangeAsync(DateTime startWeek, uint weeksBefore, uint weeksAfter);
     }
 
     public sealed class WeekManager : IWeekManager
@@ -21,25 +24,42 @@ namespace Backend.Services
             this._db = db;
         }
 
-        public async Task<Week> GetCurrentWeekAsync()
+        public Task<Week> GetCurrentWeekAsync()
         {
-            var today = DateTime.UtcNow.Date;
-            var start = today.AddDays(-(int)today.DayOfWeek);
-            var end   = today.AddDays((int)DayOfWeek.Saturday - (int)today.DayOfWeek);
+            return this.GetWeekByDayAsync(DateTime.UtcNow);
+        }
+
+        public async Task<Week> GetWeekByDayAsync(DateTime day)
+        {
+                day   = day.Date; // Ignore hh:mm:ss
+            var start = day.StartOfWeek();
+            var end   = day.EndOfWeek();
 
             var result = await this._db.Weeks.FirstOrDefaultAsync(w => w.WeekStart == start && w.WeekEnd == end);
-            if(result == null)
+            if (result == null)
             {
-                result = new Week 
+                result = new Week
                 {
                     WeekStart = start,
-                    WeekEnd   = end
+                    WeekEnd = end
                 };
                 this._db.Add(result);
                 await this._db.SaveChangesAsync();
             }
 
             return result;
+        }
+
+        public async Task<IQueryable<Week>> GetWeekRangeAsync(DateTime startWeek, uint weeksBefore, uint weeksAfter)
+        {
+            var week = await this.GetWeekByDayAsync(startWeek);
+
+            var weekRangeStart = week.WeekStart.AddDays(-(7 * weeksBefore));
+            var weekRangeEnd   = week.WeekEnd.AddDays(7 * weeksAfter);
+
+            return this._db.Weeks
+                           .OrderBy(w => w.WeekStart)
+                           .Where(w => w.WeekStart >= weekRangeStart && w.WeekEnd <= weekRangeEnd);
         }
     }
 }
