@@ -11,6 +11,10 @@ using Microsoft.Extensions.Hosting;
 using Backend.Database;
 using Backend.Services;
 using Microsoft.EntityFrameworkCore;
+using GraphQL.Server;
+using Microsoft.Extensions.Logging;
+using Backend.GraphQL;
+using GraphQL.Server.Ui.Playground;
 
 namespace Backend
 {
@@ -24,6 +28,10 @@ namespace Backend
             services.AddScoped<IPackageManager, DubRegistryStatFetcher>();
             services.AddScoped<IWeekManager, WeekManager>();
             services.AddScoped<IUpdateManager, UpdateManager>();
+            services.AddSingleton<DubStatsSchema>();
+            services.AddGraphQL()
+                    .AddSystemTextJson()
+                    .AddGraphTypes();
             services.AddMvc()
                     .AddRazorRuntimeCompilation();
         }
@@ -46,6 +54,13 @@ namespace Backend
             }
             
             app.UseStaticFiles();
+            app.UseGraphQL<DubStatsSchema>("/graphql");
+            app.UseGraphQLPlayground(new GraphQLPlaygroundOptions
+            {
+                PlaygroundSettings = new Dictionary<string, object> {
+                    { "request.credentials", "same-origin" }
+                }
+            });
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
