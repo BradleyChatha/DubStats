@@ -1,4 +1,5 @@
 module.exports = {
-    outputDir: "../backend/wwwroot/dist",
-    assetsDir: "../"
+  outputDir: "../backend/wwwroot/client/",
+  publicPath: "/client/",
+  filenameHashing: false
 };

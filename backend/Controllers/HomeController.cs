@@ -13,7 +13,7 @@ namespace Backend.Controllers
     {
         public IActionResult Index()
         {
-            return File("~/dist/index.html", "text/html");
+            return File("~/client/index.html", "text/html");
         }
     }
 }

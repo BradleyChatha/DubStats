@@ -1,0 +1,58 @@
+$BASE_BACKGROUND_COLOUR: #121212;
+$COLOURS: (
+    "primary": (
+        "900": #aa1118,
+        "800": #b81f24,
+        "700": #c5262b,
+        "600": #d73031,
+        "500": #e63932,
+        "400": #e24b4b,
+        "300": #da6d6e,
+        "200": #e79596,
+        "100": #facacf
+    ),
+
+    "accent": (
+        "900": #00625c,
+        "800": #008688,
+        "700": #009aa0,
+        "600": #00b0ba,
+        "500": #00c0cc,
+        "400": #00cad1,
+        "300": #00d5d8,
+        "200": #4be2e2,
+        "100": #9feeec
+    ),
+
+    "background": (
+        "0": $BASE_BACKGROUND_COLOUR,
+        "1": mix(white, $BASE_BACKGROUND_COLOUR, 5%),
+        "2": mix(white, $BASE_BACKGROUND_COLOUR, 7%),
+        "3": mix(white, $BASE_BACKGROUND_COLOUR, 8%),
+        "4": mix(white, $BASE_BACKGROUND_COLOUR, 9%),
+        "5": mix(white, $BASE_BACKGROUND_COLOUR, 11%),
+        "6": mix(white, $BASE_BACKGROUND_COLOUR, 12%),
+    ),
+
+    "text-on-dark": (
+        "high"  : hsla(0, 0%, 100%, 87%),
+        "medium": hsla(0, 0%, 100%, 60%),
+        "low"   : hsla(0, 0%, 100%, 38%),
+    )
+);
+
+@function get-colour($name, $weight) {
+    $col: map-get($map: $COLOURS, $key: $name);
+
+    @if not $col {
+        @error "Colour '" + $name + "' does not exist."
+    }
+
+    $col: map-get($map: $col, $key: $weight);
+
+    @if not $col {
+        @error "Colour '" + $name + "' does not contain weight '" + $weight + "'";
+    }
+
+    @return $col;
+}

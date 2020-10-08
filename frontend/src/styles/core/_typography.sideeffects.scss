@@ -1,0 +1,8 @@
+@import  "../global.scss";
+
+html {
+    font-family: 'Open Sans', Helvetica, 'Segoe UI', Arial, sans-serif;
+    font-weight: 400;
+    font-size: $FONT_BASE_SIZE;
+    color: get-colour("text-on-dark", "medium");
+}
