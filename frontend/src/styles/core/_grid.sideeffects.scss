@@ -1,0 +1,23 @@
+$GRID_COLUMN_COUNT: 12;
+$GRID_COLUMN_WIDTH: calc(100% / 12);
+
+.grid.container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+
+  &.wrapping {
+    flex-wrap: wrap;
+  }
+}
+
+@for $index from 0 to $GRID_COLUMN_COUNT {
+  .grid.column {
+    display: flex;
+    flex-direction: column;
+
+    &.span#{$index + 1} {
+      width: calc($GRID_COLUMN_WIDTH * ($index + 1));
+    }
+  }
+}

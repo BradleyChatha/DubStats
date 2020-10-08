@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="box" v-for="colClass in colourClasses" :key="colClass">
+  <div class="grid wrapping container">
+    <div class="box grid column span-1" v-for="colClass in colourClasses" :key="colClass">
       <div :class="colClass+' container'">
         <p class="high">{{ colClass }}</p>
         <p class="medium">{{ colClass }}</p>
@@ -57,9 +57,11 @@ export default defineComponent({
 @import "@/styles/global.scss";
 
 .box,
-.container {
-  width: 300px;
-  height: 110px;
+.container:not(.grid) {
+  width: 15vw;
+  height: 135px;
+
+  margin: 0 0 1em 1em;
 
   p {
     text-align: center;
