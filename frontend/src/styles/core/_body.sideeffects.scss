@@ -1,5 +1,12 @@
 @import "../global.scss";
 
 body {
-    background-color: get-colour("background", "0");
+  background-color: get-colour("background", "0");
+  padding: 0;
+  margin: 0;
+}
+
+body,
+#app {
+  width: 100%;
 }
