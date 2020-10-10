@@ -58,7 +58,7 @@ export default defineComponent({
 
 .box,
 .container:not(.grid) {
-  width: 15vw;
+  width: 100%;
   height: 135px;
 
   margin: 0 0 1em 1em;
