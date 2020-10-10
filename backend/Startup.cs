@@ -29,9 +29,17 @@ namespace Backend
             services.AddScoped<IWeekManager, WeekManager>();
             services.AddScoped<IUpdateManager, UpdateManager>();
             services.AddSingleton<DubStatsSchema>();
-            services.AddGraphQL()
-                    .AddSystemTextJson()
-                    .AddGraphTypes();
+            services.AddGraphQL(o => 
+            {
+#if DEBUG
+                o.UnhandledExceptionDelegate = context => 
+                { 
+                    context.ErrorMessage = context.OriginalException.ToString();
+                };
+#endif
+            })
+            .AddSystemTextJson()
+            .AddGraphTypes();
             services.AddMvc()
                     .AddRazorRuntimeCompilation();
         }

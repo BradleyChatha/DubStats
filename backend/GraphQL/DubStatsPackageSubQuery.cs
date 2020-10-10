@@ -1,6 +1,9 @@
-﻿using Backend.Services;
+﻿using Backend.Database;
+using Backend.Services;
 using GraphQL.Types;
+using GraphQL.Types.Relay.DataObjects;
 using GraphQL.Utilities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +24,39 @@ namespace Backend.GraphQL
                     var packages = ctx.RequestServices.GetRequiredService<IPackageManager>();
 
                     return await packages.GetPackageByNameOrNullAsync((string)ctx.Arguments["name"]);
+                }
+            );
+
+            Connection<PackageGraphType>()
+                .Name("multiple")
+                .ReturnAll()
+                .ResolveAsync(async ctx => 
+                {
+                    // No particular order, filtering, or parameters right now.
+                    var packages = ctx.RequestServices.GetRequiredService<IPackageManager>();
+                    
+                    var query = packages
+                    .QueryAll()
+                    .Select(p => new Edge<Package>
+                    {
+                        Node = p,
+                        Cursor = "TODO"
+                    });
+
+                    return new Connection<Package>
+                    {
+                        Edges = await query.ToListAsync(),
+
+                        PageInfo = new PageInfo 
+                        {
+                            EndCursor = "TODO",
+                            StartCursor = "TODO",
+                            HasNextPage = false,
+                            HasPreviousPage = false,
+                        },
+
+                        TotalCount = 0 // Odd how it can't figure this out manually.
+                    };
                 }
             );
         }

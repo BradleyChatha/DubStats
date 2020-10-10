@@ -46,6 +46,7 @@ namespace Backend.Services
         Task<Package> GetPackageByNameOrNullAsync(string name);
         Task<PackageWeekInfo> GetPackageStatsAsync(Package package, Week week);
         Task<bool> UpdatePackageAsync(Package package, Week week, PackageUpdateMilestone milestone);
+        IQueryable<Package> QueryAll();
     }
 
     public sealed class DubRegistryStatFetcher : IPackageManager
@@ -102,8 +103,8 @@ namespace Backend.Services
                 .Include(w => w.PackageStatsAtStart)
                 .Include(w => w.PackageStatsAtEnd)
                 .FirstOrDefaultAsync(
-                w => w.WeekId == week.WeekId && w.PackageId == package.PackageId
-            );
+                    w => w.WeekId == week.WeekId && w.PackageId == package.PackageId
+                );
 
             if(result == null)
             {
@@ -123,6 +124,11 @@ namespace Backend.Services
             }
 
             return result;
+        }
+
+        public IQueryable<Package> QueryAll()
+        {
+            return this._db.Packages;
         }
 
         public async Task<bool> UpdatePackageAsync(Package package, Week week, PackageUpdateMilestone milestone)

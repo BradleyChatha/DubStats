@@ -6,8 +6,8 @@
 </template>
 
 <script>
-import ColourDebug from "@/components/ColourDisplay.vue";
-import GridDebug from "@/components/GridDisplay.vue";
+import ColourDebug from "@/components/colour-debug.vue";
+import GridDebug from "@/components/grid-debug.vue";
 
 export default {
   components: {
