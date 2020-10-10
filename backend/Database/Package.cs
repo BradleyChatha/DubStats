@@ -17,5 +17,6 @@ namespace Backend.Database
         public string Name { get; set; }
 
         public ICollection<PackageWeekInfo> WeekInfos { get; set; }
+        public ICollection<ScheduledPackageUpdate> PackageUpdates { get; set; }
     }
 }

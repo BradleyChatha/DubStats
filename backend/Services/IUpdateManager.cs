@@ -1,5 +1,6 @@
 ﻿using Backend.Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,15 +17,21 @@ namespace Backend.Services
 
     public sealed class UpdateManager : IUpdateManager
     {
+        readonly ILogger         _logger;
         readonly DubStatsContext _db;
 
-        public UpdateManager(DubStatsContext db)
+        public UpdateManager(DubStatsContext db, ILogger<UpdateManager> logger)
         {
             this._db = db;
+            this._logger = logger;
         }
 
         public Task CreateUpdateJobsForPackageAsync(Package package, Week week)
         {
+            this._logger.LogInformation(
+                $"Creating weekly update jobs for package '{package.Name}' for week starting on {week.WeekStart}"
+            );
+
             var jobs = new[] 
             {
                 new ScheduledPackageUpdate(),

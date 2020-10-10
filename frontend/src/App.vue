@@ -3,8 +3,14 @@
     <header>
       <nav class="main navbar grid container">
         <div class="grid column spanning-2"></div>
-        <router-link class="centered grid column navbar link spanning-1" to="/">Home</router-link>
-        <a class="centered grid column navbar link spanning-1" href="/ui/playground">GraphQL</a>
+        <router-link class="centered grid column navbar link spanning-1" to="/"
+          >Home</router-link
+        >
+        <a
+          class="centered grid column navbar link spanning-1"
+          href="/ui/playground"
+          >GraphQL</a
+        >
         <div class="grid column spanning-2"></div>
       </nav>
     </header>

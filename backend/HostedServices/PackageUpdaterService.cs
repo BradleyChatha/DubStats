@@ -35,14 +35,14 @@ namespace Backend.HostedServices
                     var packageManager = scope.ServiceProvider.GetRequiredService<IPackageManager>();
 
                     ScheduledPackageUpdate update = await updateManager.GetNextUpdateAsync(null);
-                    int? lastId;
+                    int? lastId = null;
                     while(update != null)
                     {
-                        await this.HandleUpdate(update, packageManager);
-                        
-                        lastId = update.ScheduledPackageUpdateId;
-                        await updateManager.FinaliseUpdateAsync(update);
+                        var updated = await this.HandleUpdate(update, packageManager);
+                        if(updated)
+                            await updateManager.FinaliseUpdateAsync(update);
 
+                        lastId = update.ScheduledPackageUpdateId;
                         update = await updateManager.GetNextUpdateAsync(lastId);
                         await Task.Delay(Constants.PACKAGE_UPDATE_BETWEEN_DELAY, stoppingToken);
                     }
@@ -52,7 +52,7 @@ namespace Backend.HostedServices
             }
         }
 
-        private async Task HandleUpdate(
+        private async Task<bool> HandleUpdate(
             ScheduledPackageUpdate update,
             IPackageManager packages
         )
@@ -61,20 +61,21 @@ namespace Backend.HostedServices
             switch(update.Milestone)
             {
                 case PackageUpdateMilestone.StartOfWeek:
-                    shouldUpdate = DateTime.UtcNow.Date > update.Week.WeekStart;
+                    shouldUpdate = DateTime.UtcNow.Date >= update.Week.WeekStart;
                     break;
 
                 case PackageUpdateMilestone.EndOfWeek:
-                    shouldUpdate = DateTime.UtcNow.Date > update.Week.WeekEnd;
+                    shouldUpdate = DateTime.UtcNow.Date >= update.Week.WeekEnd;
                     break;
 
                 default: break;
             }
 
             if(!shouldUpdate)
-                return;
+                return false;
 
             await packages.UpdatePackageAsync(update.Package, update.Week, update.Milestone);
+            return true;
         }
     }
 }

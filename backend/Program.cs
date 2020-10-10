@@ -27,6 +27,7 @@ namespace Backend
                 .ConfigureServices(builder => 
                 {
                     builder.AddHostedService<PackageUpdaterService>();
+                    builder.AddHostedService<EnsurePackageUpdatesService>();
                 });
     }
 }

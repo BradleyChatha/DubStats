@@ -1,6 +1,7 @@
 const GRAPHQL_ENDPOINT = "/graphql";
 
 function query(query: string, variables: object): Promise<Object> {
+  console.log({ query, variables });
   return fetch(GRAPHQL_ENDPOINT, {
     method: "POST",
     headers: {
@@ -8,7 +9,12 @@ function query(query: string, variables: object): Promise<Object> {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ query, variables }),
-  }).then((r: Response) => r.json());
+  })
+    .then((r: Response) => r.json())
+    .then((r: any) => {
+      console.log(r);
+      return r.data;
+    });
 }
 
 export default { query };
