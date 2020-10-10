@@ -1,5 +1,5 @@
 $GRID_COLUMN_COUNT: 12;
-$GRID_COLUMN_WIDTH: calc(100% / 12);
+$GRID_COLUMN_WIDTH: 100% / 12;
 
 .grid.container {
   display: flex;
@@ -11,13 +11,17 @@ $GRID_COLUMN_WIDTH: calc(100% / 12);
   }
 }
 
-@for $index from 0 to $GRID_COLUMN_COUNT {
-  .grid.column {
-    display: flex;
-    flex-direction: column;
+.grid.column {
+  display: flex;
+  flex-direction: column;
 
-    &.span#{$index + 1} {
-      width: calc($GRID_COLUMN_WIDTH * ($index + 1));
+  @for $index from 0 to $GRID_COLUMN_COUNT {
+    &.spanning-#{$index + 1} {
+      width: #{$GRID_COLUMN_WIDTH * ($index + 1)};
     }
+  }
+
+  &.centered {
+    align-self: center;
   }
 }

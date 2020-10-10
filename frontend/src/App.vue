@@ -1,8 +1,10 @@
 <template>
   <div>
     <header>
-      <nav id="nav">
-        <router-link to="/">Home</router-link>
+      <nav class="main navbar grid container">
+        <div class="grid column spanning-4"></div>
+        <router-link class="centered grid column navbar link" to="/">Home</router-link>
+        <div class="grid column spanning-4"></div>
       </nav>
     </header>
     <main>

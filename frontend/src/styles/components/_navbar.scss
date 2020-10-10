@@ -1,0 +1,23 @@
+@import "../global.scss";
+
+.main.navbar {
+  background-color: get-colour("background", "9");
+  height: 50px;
+  margin-bottom: 20px;
+}
+
+.navbar.link {
+  text-decoration: none;
+  color: get-colour("text-on-dark", "medium");
+  font-size: 1.3em;
+
+  &.router-link-exact-active {
+    color: get-colour("accent", "300");
+  }
+
+  &:hover {
+    color: get-colour("text-on-dark", "high");
+  }
+
+  transition: color 0.2s ease;
+}

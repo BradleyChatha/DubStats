@@ -1,7 +1,7 @@
 <template>
   <div class="grid wrapping container">
-    <div class="box grid column span-1" v-for="colClass in colourClasses" :key="colClass">
-      <div :class="colClass+' container'">
+    <div class="box grid column spanning-2" v-for="colClass in colourClasses" :key="colClass">
+      <div :class="colClass + ' container'">
         <p class="high">{{ colClass }}</p>
         <p class="medium">{{ colClass }}</p>
         <p class="low">{{ colClass }}</p>
