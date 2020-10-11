@@ -23,5 +23,10 @@ namespace Backend.Misc
         {
             return new Uri($"/api/packages/{package.Name}/stats", UriKind.Relative);
         }
+
+        public static Uri GetPackageInfoUri(Package package)
+        {
+            return new Uri($"/api/packages/{package.Name}/info", UriKind.Relative);
+        }
     }
 }

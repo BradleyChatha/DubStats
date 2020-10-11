@@ -38,7 +38,8 @@ namespace Backend.Services
     public enum PackageUpdateMilestone
     {
         StartOfWeek,
-        EndOfWeek
+        EndOfWeek,
+        Dependencies
     }
 
     public interface IPackageManager
@@ -46,6 +47,7 @@ namespace Backend.Services
         Task<Package> GetPackageByNameOrNullAsync(string name);
         Task<PackageWeekInfo> GetPackageStatsAsync(Package package, Week week);
         Task<bool> UpdatePackageAsync(Package package, Week week, PackageUpdateMilestone milestone);
+        Task SetDependenciesAsync(Package dependant, IEnumerable<Package> dependencies);
         IQueryable<Package> QueryAll();
     }
 
@@ -131,29 +133,63 @@ namespace Backend.Services
             return this._db.Packages;
         }
 
-        public async Task<bool> UpdatePackageAsync(Package package, Week week, PackageUpdateMilestone milestone)
+        public async Task SetDependenciesAsync(Package dependant, IEnumerable<Package> dependencies)
+        {
+            await this._db.Entry(dependant).Collection(d => d.PackagesIDependOn).LoadAsync();
+
+            // Remove any old dependencies
+            this._db.PackageDependencies.RemoveRange(dependant.PackagesIDependOn);
+
+            // Then add the new ones in
+            this._db.PackageDependencies.AddRange(dependencies
+                .Select(dep => new PackageDependency
+                {
+                    DependantPackage = dependant,
+                    DependencyPackage = dep                    
+                })
+            );
+
+            await this._db.SaveChangesAsync();
+        }
+
+        public Task<bool> UpdatePackageAsync(Package package, Week week, PackageUpdateMilestone milestone)
+        {
+            switch(milestone)
+            {
+                case PackageUpdateMilestone.StartOfWeek:
+                case PackageUpdateMilestone.EndOfWeek:
+                    return this.UpdatePackageStatsAsync(package, week, milestone);
+
+                case PackageUpdateMilestone.Dependencies:
+                    return this.UpdatePackageDependencies(package, week);
+
+                default: return Task.FromResult(false);
+            }
+        }
+
+        private async Task<bool> UpdatePackageStatsAsync(Package package, Week week, PackageUpdateMilestone milestone)
         {
             var info = await this.GetPackageStatsAsync(package, week);
 
-            var stats = 
+            var stats =
                 (milestone == PackageUpdateMilestone.EndOfWeek)
                 ? info.PackageStatsAtEnd
                 : info.PackageStatsAtStart;
 
-            if(stats.HasBeenModified)
+            if (stats.HasBeenModified)
                 return true;
 
             this._logger.LogInformation("Updating {Milestone} stats for package {PackageName}", milestone, package.Name);
 
             var dubJson = default(DubStatsRootJson);
-            using(var response = await this._client.GetAsync(Constants.GetPackageStatsUri(package)))
+            using (var response = await this._client.GetAsync(Constants.GetPackageStatsUri(package)))
             {
-                if(!response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                     return false;
 
                 dubJson = JsonSerializer.Deserialize<DubStatsRootJson>(
                     await response.Content.ReadAsStringAsync(),
-                    new JsonSerializerOptions 
+                    new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     }
@@ -161,15 +197,45 @@ namespace Backend.Services
             }
 
             stats.Downloads = dubJson.Downloads.Weekly;
-            stats.Forks     = dubJson.Repo.Forks;
-            stats.Issues    = dubJson.Repo.Issues;
-            stats.Stars     = dubJson.Repo.Stars;
-            stats.Watchers  = dubJson.Repo.Watchers;
-            
+            stats.Forks = dubJson.Repo.Forks;
+            stats.Issues = dubJson.Repo.Issues;
+            stats.Stars = dubJson.Repo.Stars;
+            stats.Watchers = dubJson.Repo.Watchers;
+
             stats.HasBeenModified = true;
             this._db.Update(stats);
             await this._db.SaveChangesAsync();
 
+            return true;
+        }
+
+        private async Task<bool> UpdatePackageDependencies(Package package, Week week)
+        {
+            this._logger.LogInformation("Fetching latest dependency data for package {PackageName}", package.Name);
+
+            JsonDocument json;
+            using(var response = await this._client.GetAsync(Constants.GetPackageInfoUri(package)))
+            {
+                if(!response.IsSuccessStatusCode)
+                    return false;
+
+                json = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+            }
+
+            var latestDeps = json
+                .RootElement
+                .GetProperty("versions")
+                .EnumerateArray()
+                .OrderBy(prop => prop.GetProperty("date").GetDateTimeOffset())
+                .Last()
+                .GetProperty("dependencies")
+                .EnumerateObject()
+                .Select(prop => prop.Name)
+                .Select(async name => await this.GetPackageByNameOrNullAsync(name))
+                .Select(task => task.Result)
+                .Where(pkg => pkg != null);
+
+            await this.SetDependenciesAsync(package, latestDeps);
             return true;
         }
     }

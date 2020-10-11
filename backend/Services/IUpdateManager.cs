@@ -35,6 +35,7 @@ namespace Backend.Services
             var jobs = new[] 
             {
                 new ScheduledPackageUpdate(),
+                new ScheduledPackageUpdate(),
                 new ScheduledPackageUpdate()
             };
 
@@ -46,6 +47,7 @@ namespace Backend.Services
 
             jobs[0].Milestone = PackageUpdateMilestone.StartOfWeek;
             jobs[1].Milestone = PackageUpdateMilestone.EndOfWeek;
+            jobs[2].Milestone = PackageUpdateMilestone.Dependencies;
 
             this._db.AddRange(jobs);
             return this._db.SaveChangesAsync();

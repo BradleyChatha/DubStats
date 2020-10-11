@@ -41,7 +41,8 @@ namespace Backend.GraphQL
                     {
                         Node = p,
                         Cursor = "TODO"
-                    });
+                    })
+                    .Take(15); // TEMP limit
 
                     return new Connection<Package>
                     {

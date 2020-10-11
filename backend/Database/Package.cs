@@ -18,5 +18,7 @@ namespace Backend.Database
 
         public ICollection<PackageWeekInfo> WeekInfos { get; set; }
         public ICollection<ScheduledPackageUpdate> PackageUpdates { get; set; }
+        public ICollection<PackageDependency> PackagesThatDependOnMe { get; set; }
+        public ICollection<PackageDependency> PackagesIDependOn { get; set; }
     }
 }

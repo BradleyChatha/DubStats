@@ -44,7 +44,9 @@ namespace Backend.HostedServices
 
                         lastId = update.ScheduledPackageUpdateId;
                         update = await updateManager.GetNextUpdateAsync(lastId);
-                        await Task.Delay(Constants.PACKAGE_UPDATE_BETWEEN_DELAY, stoppingToken);
+
+                        if(updated)
+                            await Task.Delay(Constants.PACKAGE_UPDATE_BETWEEN_DELAY, stoppingToken);
                     }
                 }
 
@@ -61,6 +63,7 @@ namespace Backend.HostedServices
             switch(update.Milestone)
             {
                 case PackageUpdateMilestone.StartOfWeek:
+                case PackageUpdateMilestone.Dependencies:
                     shouldUpdate = DateTime.UtcNow.Date >= update.Week.WeekStart;
                     break;
 

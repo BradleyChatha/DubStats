@@ -17,12 +17,13 @@ namespace Backend.Database
             ? "/etc/dubstats/db"
             : "./db.sqlite";
 
-        public DbSet<CacheEntry>                CacheEntries    { get; set; }
-        public DbSet<Week>                      Weeks           { get; set; }
-        public DbSet<Package>                   Packages        { get; set; }
-        public DbSet<PackageWeekInfo>           WeekInfos       { get; set; }
-        public DbSet<PackageStats>              PackageStats    { get; set; }
-        public DbSet<ScheduledPackageUpdate>    PackageUpdates  { get; set; }
+        public DbSet<CacheEntry>                CacheEntries        { get; set; }
+        public DbSet<Week>                      Weeks               { get; set; }
+        public DbSet<Package>                   Packages            { get; set; }
+        public DbSet<PackageWeekInfo>           WeekInfos           { get; set; }
+        public DbSet<PackageStats>              PackageStats        { get; set; }
+        public DbSet<ScheduledPackageUpdate>    PackageUpdates      { get; set; }
+        public DbSet<PackageDependency>         PackageDependencies { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -58,6 +59,19 @@ namespace Backend.Database
                 .Entity<ScheduledPackageUpdate>()
                 .Property(u => u.Milestone)
                 .HasConversion<string>();
+
+            modelBuilder
+                .Entity<PackageDependency>()
+                .HasOne(pd => pd.DependencyPackage)
+                .WithMany(p => p.PackagesThatDependOnMe);
+            modelBuilder
+                .Entity<PackageDependency>()
+                .HasOne(pd => pd.DependantPackage)
+                .WithMany(p => p.PackagesIDependOn);
+            modelBuilder
+                .Entity<PackageDependency>()
+                .HasIndex(nameof(PackageDependency.DependantPackageId), nameof(PackageDependency.DependencyPackageId))
+                .IsUnique();
         }
 
         public async Task<CacheEntry> GetPackageCacheAsync()
