@@ -97,11 +97,11 @@ export default defineComponent({
       .then(json => json.packages.multiple.items)
       .then(packages => {
         const emptyStats = {
-          downloads: 0,
-          forks: 0,
-          issues: 0,
-          stars: 0,
-          watchers: 0
+          downloads: -1,
+          forks: -1,
+          issues: -1,
+          stars: -1,
+          watchers: -1
         };
 
         const emptyWeek = {
