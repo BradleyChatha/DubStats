@@ -78,7 +78,12 @@ namespace Backend.Services
 
         public async Task<Package> GetPackageByNameOrNullAsync(string name)
         {
-            var result = await this._db.Packages.FirstOrDefaultAsync(p => p.Name == name);
+            var result = await this._db.Packages
+                .Include(p => p.PackagesIDependOn)
+                    .ThenInclude(pd => pd.DependencyPackage)
+                .Include(p => p.PackagesThatDependOnMe)
+                    .ThenInclude(pd => pd.DependantPackage)
+                .FirstOrDefaultAsync(p => p.Name == name);
             if(result != null)
                 return result;
 

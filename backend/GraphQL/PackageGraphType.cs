@@ -21,6 +21,16 @@ namespace Backend.GraphQL
                 resolve: ctx => ctx.Source.Name
             );
 
+            Field<ListGraphType<PackageGraphType>>(
+                "dependsOn",
+                resolve: ctx => ctx.Source.PackagesIDependOn.Select(pd => pd.DependencyPackage)
+            );
+
+            Field<ListGraphType<PackageGraphType>>(
+                "dependedOnBy",
+                resolve: ctx => ctx.Source.PackagesThatDependOnMe.Select(pd => pd.DependantPackage)
+            );
+
             FieldAsync<ListGraphType<PackageWeekInfoGraphType>>(
                 "WeekInfo",
                 "The weekly info for this package",
