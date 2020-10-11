@@ -14,7 +14,7 @@ namespace Backend.Database
         
         private static string PlatformDbFilePath =>
             (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            ? "/etc/dubstats/db"
+            ? "/etc/dubstats/db.sqlite"
             : "./db.sqlite";
 
         public DbSet<CacheEntry>                CacheEntries        { get; set; }
