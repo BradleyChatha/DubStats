@@ -51,7 +51,7 @@ namespace Backend.HostedServices
                         .Include(p => p.WeekInfos)
                             .ThenInclude(wi => wi.PackageStatsAtEnd)
                         .Where(p => !p.PackageUpdates.Any(pu => pu.Week == thisWeek))
-                        .Where(p => !p.WeekInfos.FirstOrDefault(wi => wi.WeekId == thisWeek.WeekId).PackageStatsAtEnd.HasBeenModified);
+                        .Where(p => !p.WeekInfos.Any(wi => wi.WeekId == thisWeek.WeekId && wi.PackageStatsAtEnd.HasBeenModified));
 
                     foreach(var package in query)
                         await updateManager.CreateUpdateJobsForPackageAsync(package, thisWeek);

@@ -9,6 +9,8 @@
     "watch": "vue-cli-service build --mode development --watch"
   },
   "dependencies": {
+    "@types/chart.js": "^2.9.25",
+    "chart.js": "^2.9.3",
     "core-js": "^3.6.5",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-beta.13"

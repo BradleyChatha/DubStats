@@ -46,6 +46,7 @@ namespace Backend.GraphQL
                                 .Where(wi => wi.PackageId == ctx.Source.PackageId)
                                 .Include(wi => wi.PackageStatsAtEnd)
                                 .Include(wi => wi.PackageStatsAtStart)
+                                .Include(wi => wi.Week)
                                 .AsEnumerable();
                 }
             );

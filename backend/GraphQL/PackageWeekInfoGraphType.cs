@@ -19,6 +19,10 @@ namespace Backend.GraphQL
                 "statsEndOfWeek",
                 resolve: ctx => ctx.Source.PackageStatsAtEnd
             );
+            Field<WeekGraphType>(
+                "week",
+                resolve: ctx => ctx.Source.Week
+            );
         }
     }
 }
