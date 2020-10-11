@@ -227,12 +227,17 @@ namespace Backend.Services
                 json = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
             }
 
-            var latestDeps = json
+            var version = json
                 .RootElement
                 .GetProperty("versions")
                 .EnumerateArray()
                 .OrderBy(prop => prop.GetProperty("date").GetDateTimeOffset())
-                .Last()
+                .Last();
+            
+            if(!version.TryGetProperty("dependencies", out JsonElement ele) || ele.ValueKind == JsonValueKind.Null)
+                return true; // Not a failure state, this version just doesn't have any dependencies.
+
+            var latestDeps = version
                 .GetProperty("dependencies")
                 .EnumerateObject()
                 .Select(prop => prop.Name)
