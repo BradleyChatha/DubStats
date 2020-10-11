@@ -1,6 +1,9 @@
 const GRAPHQL_ENDPOINT = "/graphql";
 
-function query(query: string, variables: object): Promise<Object> {
+function query(
+  query: string,
+  variables: Record<string, any>
+): Promise<Record<string, any>> {
   console.log({ query, variables });
   return fetch(GRAPHQL_ENDPOINT, {
     method: "POST",

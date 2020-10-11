@@ -4,13 +4,26 @@
       <h1>Overview for package {{ name }}</h1>
     </div>
     <div class="grid container column spanning-12">
-      <canvas id="chart"></canvas>
+      <div id="content">
+        <div>
+          Showing last
+          <input
+            id="week-range"
+            type="number"
+            v-model="prevWeeks"
+            @input="onWeekRangeChange"
+          />
+          weeks.
+        </div>
+        <canvas id="chart"></canvas>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import Chart from "chart.js";
+import * as lodash from "lodash";
 import GraphQL from "@/lib/graphql";
 
 export default {
@@ -23,8 +36,7 @@ export default {
   data: function() {
     return {
       chart: null,
-      nextWeeks: 0,
-      prevWeeks: 0
+      prevWeeks: 1
     };
   },
 
@@ -34,6 +46,10 @@ export default {
   },
 
   methods: {
+    onWeekRangeChange: lodash.debounce(function() {
+      this._updateChart();
+    }, 500),
+
     _createChart: function() {
       Chart.defaults.global.defaultFontColor = "rgba(255, 255, 255, 0.87)"; // Same as text-on-dark("high")
       this.chart = new Chart(
@@ -121,7 +137,7 @@ export default {
         {
           name: this.name,
           today: new Date().toISOString(),
-          nextWeeks: this.nextWeeks,
+          nextWeeks: 0,
           prevWeeks: this.prevWeeks
         }
       )
@@ -170,6 +186,15 @@ export default {
 #chart {
   width: 100%;
   height: auto;
+  margin-top: 1em;
+}
+
+#content {
+  margin: 1em;
+}
+
+#week-range {
+  width: 40px;
 }
 
 h1 {
