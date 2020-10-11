@@ -22,12 +22,12 @@
             <div
               class="section"
               v-for="(stats, i) in [
-                pkg.weekInfo[0].statsStartOfWeek,
-                pkg.weekInfo[0].statsEndOfWeek
+                pkg.lastWeek.statsStartOfWeek,
+                pkg.thisWeek.statsStartOfWeek
               ]"
               :key="i"
             >
-              <h3>{{ i == 0 ? "Start" : "End" }}</h3>
+              <h3>{{ i == 0 ? "Last Week" : "This Week" }}</h3>
               <p class="value">{{ stats.downloads }}</p>
               <p class="value">{{ stats.forks }}</p>
               <p class="value">{{ stats.issues }}</p>
@@ -75,7 +75,7 @@ export default defineComponent({
           multiple {
             items {
               name
-              weekInfo(dayOfWeek:$today, prevWeeks:0, nextWeeks:0) {
+              weekInfo(dayOfWeek:$today, prevWeeks:1, nextWeeks:0) {
                 statsStartOfWeek { ...stats }
                 statsEndOfWeek { ...stats }
               }
@@ -94,32 +94,38 @@ export default defineComponent({
     `,
       { today: new Date().toISOString() }
     )
-      .then(json => (this.packages = json.packages.multiple.items))
-      .then(_ => {
-        // Edge case, for packages that haven't had this week's info been updated yet, just show -1.
-        for (const pkg of this.packages) {
-          if (!pkg.weekInfo || !pkg.weekInfo.length) {
-            pkg.weekInfo = [
-              {
-                statsStartOfWeek: {
-                  downloads: -1,
-                  forks: -1,
-                  issues: -1,
-                  stars: -1,
-                  watchers: -1
-                },
-                statsEndOfWeek: {
-                  downloads: -1,
-                  forks: -1,
-                  issues: -1,
-                  stars: -1,
-                  watchers: -1
-                }
-              }
-            ];
+      .then(json => json.packages.multiple.items)
+      .then(packages => {
+        const emptyStats = {
+          downloads: 0,
+          forks: 0,
+          issues: 0,
+          stars: 0,
+          watchers: 0
+        };
+
+        const emptyWeek = {
+          statsStartOfWeek: emptyStats,
+          statsEndOfWeek: emptyStats
+        };
+
+        // Set the thisWeek and lastWeek properties
+        for (const pkg of packages) {
+          pkg.weekInfo = pkg.weekInfo || [];
+
+          pkg.thisWeek = emptyWeek;
+          pkg.lastWeek = emptyWeek;
+
+          if (pkg.weekInfo.length == 1) pkg.thisWeek = pkg.weekInfo[0];
+          else {
+            pkg.thisWeek = pkg.weekInfo[1]; // It's in chronological order
+            pkg.lastWeek = pkg.weekInfo[0];
           }
         }
-      });
+
+        return packages;
+      })
+      .then(packages => (this.packages = packages));
   }
 });
 </script>
